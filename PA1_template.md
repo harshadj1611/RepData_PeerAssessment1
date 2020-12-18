@@ -9,37 +9,56 @@ output:
 ## Loading and preprocessing the data
 
 ##### 1. Load the data 
-```{r, results='hide', warning=FALSE, message=FALSE}
+
+```r
 library(lubridate)
 library(dplyr)
 library(Hmisc)
 ```
 
-```{r}
+
+```r
 dataset <- read.csv("M:/Harshad R/R/R Cousera Courses/R Course_5 Reproducible Research/Week_2/Peer Graded Assignment/repdata_data_activity/activity.csv", sep = ",")
 ```
 
 ##### 2. Preprocessing the data
-```{r}
+
+```r
 dataset$date <- ymd(dataset$date)
 dataset <- na.omit(dataset)
 ```
 ## What is mean total number of steps taken per day?
 
 ##### 1. Total number of steps taken per day
-```{r, warning=FALSE, message=FALSE}
+
+```r
 totalsteps <- dataset %>% group_by(date) %>% summarise(sum= sum(steps))
 ```
 
 ##### 2. Histogram of the total number of steps taken each day
-```{r}
+
+```r
 hist(totalsteps$sum, breaks = 20, xlab = "Total number of steps per day", main = "Histogram of the total number of steps taken each day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 ##### 3. Mean and median total number of steps taken per day
-```{r}
+
+```r
 mean(totalsteps$sum)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(totalsteps$sum)
+```
+
+```
+## [1] 10765
 ```
 
 
@@ -47,60 +66,92 @@ median(totalsteps$sum)
 ## What is the average daily activity pattern?
 
 ##### 1. Calculating the mean steps 
-```{r, warning=FALSE, message=FALSE}
+
+```r
 meansteps <- dataset %>% group_by( interval) %>% summarise(mean= mean(steps))
 ```
 ##### 2. Plotting time-series plot
-```{r}
+
+```r
 with(meansteps, plot(interval, mean, type="l",xlab="5-minutes interval",
     ylab="Average number of steps taken", main="Time-Series Plot" ))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
 ##### 3.  The 5-minute interval on average across all the days in the dataset that contains the maximum number of steps
-```{r, warning=FALSE, message=FALSE}
+
+```r
  meansteps[which(meansteps$mean== max(meansteps$mean)),]
+```
+
+```
+## # A tibble: 1 x 2
+##   interval  mean
+##      <int> <dbl>
+## 1      835  206.
 ```
 
 ## Imputing missing values
 
 ##### 1. Loading the main dataset again
-```{r}
+
+```r
 dataset <- read.csv("M:/Harshad R/R/R Cousera Courses/R Course_5 Reproducible Research/Week_2/Peer Graded Assignment/repdata_data_activity/activity.csv", sep = ",")
 ```
 
 ##### 2. Calculating the total number of missing values
-```{r}
+
+```r
 missingValues <- sum(is.na(dataset))
 ```
-Number of missing values : `r missingValues`
+Number of missing values : 2304
 
 ##### 3. Imputing data
-```{r}
+
+```r
 datasetNoNA <- dataset
 datasetNoNA$steps <-impute(dataset$steps, fun = mean )
 ```
 
 ##### 4. Total number of steps taken each day
-```{r, warning=FALSE, message=FALSE}
+
+```r
 totalstepsNoNA <- datasetNoNA %>% group_by(date) %>% summarise(sum= sum(steps))
 ```
 
 ##### 5. Histogram of the total number of steps taken each day
-```{r}
+
+```r
 hist(totalstepsNoNA$sum, breaks = 10, xlab = "Total steps per day", main = "Histogram of the total number of steps taken each day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
 ##### 6. Calculating mean and median total number of steps taken each day
-```{r}
+
+```r
 mean(totalstepsNoNA$sum)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(totalstepsNoNA$sum)
+```
+
+```
+## [1] 10766.19
 ```
 
 ####### As we can see, new figures are almost the same as before imputing NA values. The median has changed a bit and became equal to the mean.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r, warning=FALSE, message=FALSE}
+
+```r
 datasetNoNA$day<-strptime(dataset[,2], "%Y-%m-%d")
 datasetNoNA$weekdays<-weekdays(datasetNoNA$day)
 
@@ -125,13 +176,15 @@ averagesteps <- merge %>% group_by(interval, weekdays) %>% summarise(averagestep
 ```
 
 ##### Plotting time-series plot 
-```{r}
+
+```r
 g <- ggplot(averagesteps, aes(interval, averagesteps))
 g+geom_line() + facet_grid(weekdays~.) + 
   xlab("5-minute interval") + 
     ylab("Average number of steps")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 
 
